@@ -11,9 +11,14 @@ ATestSolveBase::ATestSolveBase()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-FString ATestSolveBase::SolveTest()
+FString ATestSolveBase::SolveTestOne()
 {
-	return Super::SolveTest();
+	return Super::SolveTestOne();
+}
+
+FString ATestSolveBase::SolveTestTwo()
+{
+	return Super::SolveTestTwo();
 }
 
 FString ATestSolveBase::SolvePartOne()

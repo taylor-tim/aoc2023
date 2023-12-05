@@ -15,7 +15,8 @@ public:
 	// Sets default values for this character's properties
 	ATestSolveBase();
 
-	virtual FString SolveTest() override;
+	virtual FString SolveTestOne() override;
+	virtual FString SolveTestTwo() override;
 	virtual FString SolvePartOne() override;
 	virtual FString SolvePartTwo() override;
 

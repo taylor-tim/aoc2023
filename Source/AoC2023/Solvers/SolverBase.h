@@ -37,13 +37,43 @@ public:
 	virtual FString SolvePartTwo();
 
 	UFUNCTION(BlueprintCallable)
-	virtual FString SolveTest();
+	virtual FString SolveTestOne();
+	
+	UFUNCTION(BlueprintCallable)
+	virtual FString SolveTestTwo();
+	
+	UFUNCTION(BlueprintCallable)
+	void ReadTestOneData();
+	
+	UFUNCTION(BlueprintCallable)
+	void ReadTestTwoData();
+	
+	UFUNCTION(BlueprintCallable)
+	void ReadPuzzleOneData();
+	
+	UFUNCTION(BlueprintCallable)
+	void ReadPuzzleTwoData();
+	
+	UFUNCTION()
+	void ReadDataFiles();
+	
+	UFUNCTION(BlueprintCallable)
+	void DownloadPuzzleInfo();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	virtual void ParsePuzzleData();
 
+	UPROPERTY()
+	FString SolutionFolder = TEXT("");
+	
+	UPROPERTY()
+	int SolutionNumber = 0;
+	
+	UPROPERTY()
+	FString ProjectSource = TEXT("D:/unreals/recheck/aoc2023/Source/AoC2023/Solvers");
+	
 	UPROPERTY()
 	FString PuzzleData = "";
 
@@ -52,6 +82,24 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	UBoxComponent* OverlapArea;
+
+	UPROPERTY()
+	TArray<FString> TestOneData;
+
+	UPROPERTY()
+	TArray<FString> TestTwoData;
+
+	UPROPERTY()
+	TArray<FString> PuzzleOneData;
+
+	UPROPERTY()
+	TArray<FString> PuzzleTwoData;
+
+	UPROPERTY()
+	FString AocCookie = TEXT("");
+	
+	UPROPERTY()
+    FString AoCBaseUrl = TEXT("https://adventofcode.com/2023/day");
 
 public:
 	// Called every frame

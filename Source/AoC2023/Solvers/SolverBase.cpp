@@ -4,7 +4,9 @@
 #include "SolverBase.h"
 
 #include "AoC2023/GameMode/SolverGameMode.h"
-#include "AoC2023/Interfaces/SolveStationInterface.h"
+#include "AoC2023/Statics/FileReader.h"
+#include "AoC2023/Statics/HttpHelper.h"
+#include "Kismet/KismetStringLibrary.h"
 
 
 // Sets default values
@@ -35,8 +37,11 @@ void ASolverBase::HandleSolve(ESolveTypes SolveTypes)
 	FString Answer = TEXT("Nothing Solved");
 	switch (SolveTypes)
 	{
-	case ESolveTypes::TestData:
-		Answer = SolveTest();
+	case ESolveTypes::TestDataOne:
+		Answer = SolveTestOne();
+		break;
+	case ESolveTypes::TestDataTwo:
+		Answer = SolveTestTwo();
 		break;
 	case ESolveTypes::PartOne:
 		Answer = SolvePartOne();
@@ -63,16 +68,92 @@ FString ASolverBase::SolvePartTwo()
 	return TEXT("Part Two Solved Base");
 }
 
-FString ASolverBase::SolveTest()
+FString ASolverBase::SolveTestOne()
 {
-	return TEXT("Test Data Solved Base");
+	return TEXT("Test Data Solved One Base");
+}
+
+FString ASolverBase::SolveTestTwo()
+{
+	return TEXT("Test Data Solved Two Base");
+}
+
+void ASolverBase::ReadTestOneData()
+{
+	FString FilePath = FString::Printf(TEXT("%s/%s/TestOneData.txt"), *ProjectSource, *SolutionFolder);
+	FString Result = UFileReader::ReadFromFile(FilePath);
+	TestOneData = UFileReader::SplitStringOnNewLines(Result);
+}
+
+void ASolverBase::ReadTestTwoData()
+{
+	FString FilePath = FString::Printf(TEXT("%s/%s/TestTwoData.txt"), *ProjectSource, *SolutionFolder);
+	FString Result = UFileReader::ReadFromFile(FilePath);
+	TestTwoData = UFileReader::SplitStringOnNewLines(Result);
+}
+
+void ASolverBase::ReadPuzzleOneData()
+{
+	FString FilePath = FString::Printf(TEXT("%s/%s/PuzzleOneData.txt"), *ProjectSource, *SolutionFolder);
+	FString Result = UFileReader::ReadFromFile(FilePath);
+	PuzzleOneData = UFileReader::SplitStringOnNewLines(Result);
+}
+
+void ASolverBase::ReadPuzzleTwoData()
+{
+	FString FilePath = FString::Printf(TEXT("%s/%s/PuzzleTwoData.txt"), *ProjectSource, *SolutionFolder);
+	FString Result = UFileReader::ReadFromFile(FilePath);
+	PuzzleTwoData = UFileReader::SplitStringOnNewLines(Result);
+}
+
+void ASolverBase::ReadDataFiles()
+{
+	TArray<FString> TheseStrings;
+	FString FilePath = FString::Printf(TEXT("%s/%s/PuzzleOneData.txt"), *ProjectSource, *SolutionFolder);
+	FFileHelper::LoadFileToStringArray(TheseStrings, *FilePath);
+	if (TheseStrings.Num() == 0)
+	{
+		//DownloadPuzzleInfo();
+	}
+	ReadTestOneData();
+	ReadTestTwoData();
+	ReadPuzzleOneData();
+	ReadPuzzleTwoData();
+}
+
+void ASolverBase::DownloadPuzzleInfo()
+{
+	SolutionNumber = UKismetStringLibrary::Conv_StringToInt(SolutionFolder.Replace(TEXT("Solution0"), TEXT("")).Replace(TEXT("Solution"), TEXT("")));
+	const FString DayUrl = FString::Printf(TEXT("%s/%i/input"), *AoCBaseUrl, SolutionNumber);
+	FString Content = UHttpHelper::HttpRetriever(DayUrl, AocCookie);
+	if (Content.Len() == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("got zero content length"));
+		return;
+	}
+	const FString FilePathOne = FString::Printf(TEXT("%s/%s/PuzzleOneData.txt"), *ProjectSource, *SolutionFolder);
+	FFileHelper::SaveStringToFile(Content, *FilePathOne);
+	const FString FilePathTwo = FString::Printf(TEXT("%s/%s/PuzzleTwoData.txt"), *ProjectSource, *SolutionFolder);
+	FFileHelper::SaveStringToFile(Content, *FilePathTwo);
 }
 
 // Called when the game starts or when spawned
 void ASolverBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	ASolverGameMode* SolverGameMode = Cast<ASolverGameMode>(GetWorld()->GetAuthGameMode());
+	if (SolverGameMode != nullptr)
+	{
+		AocCookie = SolverGameMode->GetAocCookie();
+		int DayInt = SolverGameMode->DayToSolve;
+		FString DayString = UKismetStringLibrary::Conv_IntToString(DayInt);
+		if (DayString.Len() == 1)
+		{
+			DayString = FString::Printf(TEXT("0%s"), *DayString);
+		}
+		SolutionFolder = FString::Printf(TEXT("Solution%s"), *DayString);
+	}
 }
 
 void ASolverBase::ParsePuzzleData()
